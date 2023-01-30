@@ -1,5 +1,7 @@
 import os
 
+import torch
+from torch.utils.data import random_split
 import constants
 from data.StartingDataset import StartingDataset
 from networks.StartingNetwork import StartingNetwork
@@ -10,18 +12,31 @@ def main():
     # Get command line arguments
     hyperparameters = {"epochs": constants.EPOCHS, "batch_size": constants.BATCH_SIZE}
 
-    # TODO: Add GPU support. This line of code might be helpful.
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    device = (
+        "cuda" if torch.cuda.is_available()
+        else "mps"
+        if torch.backends.mps.is_available()
+        else "cpu"
+    )   
+    
+    print("Using device:", device)
     print("Epochs:", constants.EPOCHS)
     print("Batch size:", constants.BATCH_SIZE)
 
     # Initalize dataset and model. Then train the model!
-    data_path = "train.csv" #TODO: make sure you have train.csv downloaded in your project! this assumes it is in the project's root directory (ie the same directory as main) but you can change this as you please
+    data_path = "train.csv"
 
-    train_dataset = StartingDataset(data_path)
-    val_dataset = StartingDataset(data_path)
-    model = StartingNetwork()
+    print("Loading data...")
+    data = StartingDataset(data_path, device)
+    
+    train_size = int(0.95 * len(data)) # 95% of data for training
+    val_size = len(data) - train_size
+    train_dataset, val_dataset = random_split(data,[train_size, val_size])
+    
+    print("Loading model...")
+    model = StartingNetwork().to(device)
+    
+    print("Training model...")
     starting_train(
         train_dataset=train_dataset,
         val_dataset=val_dataset,

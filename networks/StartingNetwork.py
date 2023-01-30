@@ -9,8 +9,9 @@ class StartingNetwork(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.fc1 = nn.Linear(12122002, 50) # What could that number mean!?!?!? Ask an officer to find out :)
-        self.fc2 = nn.Linear(50, 10)
+        self.fc1 = nn.Linear(110, 110) # What could that number mean!?!?!? Ask an officer to find out :) 12122002
+        self.fc2 = nn.Linear(110, 50)
+        self.fc3 = nn.Linear(50, 1)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
@@ -19,6 +20,7 @@ class StartingNetwork(torch.nn.Module):
         '''
         x = self.fc1(x)
         x = self.fc2(x)
+        x = self.fc3(x)
         x = self.sigmoid(x)
         return x
 

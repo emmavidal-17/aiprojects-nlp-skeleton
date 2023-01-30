@@ -37,21 +37,21 @@ def starting_train(train_dataset, val_dataset, model, hyperparameters, n_eval):
 
         # Loop over each batch in the dataset
         for batch in tqdm(train_loader):
-            # TODO: Forward propagate
-
-            # TODO: Backpropagation and gradient descent
+            inputs, labels = batch 
+            
+            optimizer.zero_grad()
+            output = model(inputs).squeeze()
+            loss = loss_fn(output, labels)
+            loss.backward()
+            optimizer.step()
 
             # Periodically evaluate our model + log to Tensorboard
             if step % n_eval == 0:
-                # TODO:
-                # Compute training loss and accuracy.
-                # Log the results to Tensorboard.
-
-                # TODO:
-                # Compute validation loss and accuracy.
-                # Log the results to Tensorboard. 
-                # Don't forget to turn off gradient calculations!
-                evaluate(val_loader, model, loss_fn)
+                model.eval()
+                loss = evaluate(val_loader, model, loss_fn)
+                # tensorboard.log("vaL_loss", loss, step)
+                print(f"Step {step}: Accuracy = {loss}")
+                model.train()
 
             step += 1
 
@@ -78,7 +78,11 @@ def compute_accuracy(outputs, labels):
 def evaluate(val_loader, model, loss_fn):
     """
     Computes the loss and accuracy of a model on the validation dataset.
-
-    TODO!
     """
-    pass
+    loss = 0
+    for batch in tqdm(val_loader):
+        inputs, labels = batch
+        outputs = model(inputs).squeeze()
+        
+        loss += compute_accuracy(outputs, labels)
+    return loss/len(val_loader)
